@@ -60,7 +60,7 @@ class LearningAgent(Agent):
                 print "-----epsilon----"
                 print self.epsilon
             else:
-                self.epsilon =  math.pow(0.98,self.t)
+                self.epsilon =  1 - math.exp(-0.1*self.t)
             
             #self.epsilon =  1/math.pow(self.t,2) # 20 iter not use decay fast. f,f
             #self.epsilon =  math.exp(-0.05*self.t) # 70 trials, a+,f 
