@@ -59,8 +59,7 @@ class LearningAgent(Agent):
                 self.epsilon = self.epsilon - 0.15
                 print "-----epsilon----"
                 print self.epsilon
-            else:
-                self.epsilon =  1 - math.exp(-0.1*self.t)
+            
             
             #self.epsilon =  1/math.pow(self.t,2) # 20 iter not use decay fast. f,f
             #self.epsilon =  math.exp(-0.05*self.t) # 70 trials, a+,f 
@@ -249,7 +248,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent,learning=True,alpha=0.60,epsilon=1)
+    agent = env.create_agent(LearningAgent,learning=True,alpha=0.60,epsilon=0.2)
     #alpha 0.02,0.01 epsilon 1 = d,b . 170 iters
     #alpha 0.02 epsilon 1 = d,b . 170 iters
     #alpha 0.08 epsilon 1 = d,f . 170 iters
