@@ -45,27 +45,10 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         else:
-            
-            #self.epsilon = self.epsilon -0.02 # bue. a+,f
-            #self.epsilon =  math.pow(0.98,self.t) # > 130 iter
-            self.alpha = math.pow(0.98,self.t)
-            #self.epsilon=float(1)/math.exp(float( .15 * self.t)) # 20 iter a+,f
-            #self.alpha =  math.cos(0.04*self.t) # 35 iter decay bad to slow in one  d,f
-            #self.alpha = 1 - math.exp(-0.1*self.t)
-            print "-----epsilon----"
-            print self.epsilon
-            if self.t > 140:
-                #self.alpha = self.alpha - 0.15
-                self.epsilon = self.epsilon - 0.15
-                print "-----epsilon----"
-                print self.epsilon
-            
-            
-            #self.epsilon =  1/math.pow(self.t,2) # 20 iter not use decay fast. f,f
-            #self.epsilon =  math.exp(-0.05*self.t) # 70 trials, a+,f 
-            #self.alpha =  math.exp(-0.05*self.t)
-            #self.epsilon = 0.4/(0.5+self.t) # 20. a+,f decrease to fast
-            #self.epsilon =  1/(1 + 0.1 * self.t) # a+,d
+            self.epsilon =  math.pow(0.98,self.t) # > 130 #FINAL STATE
+            #self.epsilon =  self.epsilon - 0.05 # Q-Learning Simulation Results CODE
+            if self.t > 145:
+                self.alpha = self.alpha - 0.15
         return None
 
     def build_state(self):
@@ -86,34 +69,9 @@ class LearningAgent(Agent):
         #   If it is not, create a dictionary in the Q-table for the current 'state'
         #   For each action, set the Q-value for the state-action pair to 
         
-        #listdata = ['left','right','right','right']
-        #listdata = ['left','left','right']
-        #listdata = ['left']
-        #listdata = ['left','oncoming']
-        #del inputs['right']
-        #del inputs['left']
-        #del inputs['oncoming']
-        #inputs["waypoint"] = waypoint
-        
-        #inputs["deadline"] = deadline
-        #listdata = ['left','oncoming','deadline','deadline'] # law of right intersection u.s
-        #listdata = ['left','oncoming']
-        #del inputs['right']
-        #inputs["waypoint"] = waypoint
-        #del inputs[random.choice(listdata)]
-        #self.state = tuple(inputs.values())
-        #state = tuple(inputs.values())
-        
-        listdata = ['left','oncoming']
-        #listdata = [waypoint,deadline]
-        listdatados = ['left','oncoming']
-        feature_random = random.choice(listdata) #HELPS TO REDUCE SPACE STATE
-        #self.state = (inputs['light'],inputs['oncoming'],inputs['left'] ,waypoint)
-        self.state = (inputs['light'],inputs[feature_random] ,waypoint)
-        #self.state = (inputs['light'],inputs['oncoming'],inputs['left'] ,feature_random)
-        #self.state = (inputs['light'],inputs[random.choice(listdatados)],feature_random)
+    
+        self.state = (inputs['light'],inputs['oncoming'],inputs['left'] ,waypoint) #FINAL STATE
         self.createQ(self.state)
-        
         return self.state
 
 
@@ -128,7 +86,7 @@ class LearningAgent(Agent):
         
         # Calculate the maximum Q-value of all actions for a given state
        
-        maxQ = max(self.Q[state].values()) #  max(self.Q[state], key=self.Q[state].get)
+        maxQ = max(self.Q[state].values()) 
         
         return maxQ 
 
@@ -148,7 +106,8 @@ class LearningAgent(Agent):
             if state not in self.Q:
                 self.Q[state] = {}
                 for i in range(len(self.valid_actions)):
-                    self.Q[state][self.valid_actions[i]] =random.uniform(0.05, 0.08)
+                    #self.Q[state][self.valid_actions[i]] = 0 # Q-Learning Simulation Results CODE
+                    self.Q[state][self.valid_actions[i]] =random.uniform(-0.05, 0.05) #FINAL SIM
                 
         
         return
@@ -184,8 +143,6 @@ class LearningAgent(Agent):
                 print action
                 print self.Q[state]
         else:
-            
-            
             action = random.choice(self.valid_actions)
             
        
@@ -201,15 +158,12 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # When learning, implement the value iteration update rule
-        #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-       
-        next_state = self.build_state()
-        self.createQ(next_state)
+        #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma'
         
         if self.learning:
            
             
-            self.Q[state][action] = self.Q[state][action] + self.alpha * (reward + self.get_maxQ(next_state)  - self.Q[state][action])
+            self.Q[state][action] = self.Q[state][action] + self.alpha * (reward - self.Q[state][action])
          
             
      #Q(s,a) = Q(s,a) + alpha * [R(s,a) + gamma * argmax(R(s', a')) - Q(s, a)]
@@ -240,7 +194,7 @@ def run():
     #   verbose     - set to True to display additional output from the simulation
     #   num_dummies - discrete number of dummy agents in the environment, default is 100
     #   grid_size   - discrete number of intersections (columns, rows), default is (8, 6)
-    env = Environment(verbose = False,num_dummies=50,grid_size=(4,4))
+    env = Environment(verbose = False,num_dummies=90,grid_size=(7,5))
     #env = Environment(verbose = False,num_dummies=60,grid_size=(4,4))
     ##############
     # Create the driving agent
@@ -248,23 +202,9 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent,learning=True,alpha=0.60,epsilon=0.2)
-    #alpha 0.02,0.01 epsilon 1 = d,b . 170 iters
-    #alpha 0.02 epsilon 1 = d,b . 170 iters
-    #alpha 0.08 epsilon 1 = d,f . 170 iters
-    #alpha 0.15 epsilon 1 = c,f . 170 iters
-    #alpha 0.25 epsilon 1 = c,f . 170 iters
-    #alpha 0.30,0.01 epsilon 1 = a+,f . 170 iters
-    #alpha 0.35 epsilon 1 = a+,f . 170 iters
-    #alpha 0.45 epsilon 1 = d,f . 170 iters
-    #alpha 0.40 epsilon 1 = d,f . 170 iters
-    #alpha 0.35 epsilon 1 = d,f . 170 iters
-    #alpha 0.35 epsilon 1 = f,d . 70 iters 
-    #alpha 0.25 epsilon 1 = d,f . 70 iters 
-    #alpha 0.02 epsilon 1 = d,b . 70 iters 
-    #alpha 0.01 epsilon 1 = a+,a . 170 iters listdata = ['left','right'] sometimes d,f
-    #alpha 0.01 epsilon 1 = a+,f . 170 iters listdata = ['right'] 
-    #alpha function epsilon function = a+,d . 70 iters listdata = ['left','oncoming'], num_dummies=50,grid_size=(5,5)
+    agent = env.create_agent(LearningAgent,learning=True,alpha=1,epsilon=1) #FINAL SIM
+    #agent = env.create_agent(LearningAgent,learning=False,alpha=1,epsilon=1) #Implement a Basic Driving Agent
+   
     ##############
     # Follow the driving agent
     # Flags:
@@ -278,16 +218,17 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env,update_delay=0.001,log_metrics=True,optimized=True,display=False)
-    #sim = Simulator(env,log_metrics=True)
+    #sim = Simulator(env,update_delay=0.01,log_metrics=True,optimized=False,display=False) #Q-Learning Simulation Results CODE
+    sim = Simulator(env,update_delay=0.001,log_metrics=True,optimized=True,display=False) #FINAL SIM
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=40,tolerance=0.05)
-
+    
+    #sim.run(n_test=10,tolerance=0.05) # Q-Learning Simulation Results CODE
+    sim.run(n_test=20,tolerance=0.05) #FINAL SIM 
 
 if __name__ == '__main__':
     run()
